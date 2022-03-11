@@ -43,7 +43,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
                 if (xhr.status==200) {
                     //XXX: parse some JSON from the request!
                     //XXX: Pass the data to the callback!
-                    var response = JSON.parse(xhr.responseText);
+                    var response = JSON.parse(xhr.response);
                     callback(response);
                 }
             } 
@@ -74,7 +74,7 @@ function drawCircle(context,entity) {
         //moveTo(x,y);
         fillStyle = entity["colour"];
         strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        arc(x, y, (entity["radius"]) ? entity["radius"] : 100, 0, 2.0 * Math.PI, false);  
         stroke();                                
     }
 }
@@ -103,7 +103,7 @@ function renderFrame() {
     clearFrame();
     for (var key in world) {
         var entity = world[key];
-        drawCircle(context,prepEntity(entity));
+        drawCircle(context, prepEntity(entity));
     }
 }
 
@@ -145,7 +145,7 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    drawNextFrame(); // (but should we?)
+    // drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just  modified!
     const url = `http://${host}/entity/${entity}`;
     const obj = {
@@ -153,9 +153,7 @@ function addEntity(entity, data) {
         body: data // FIXME: return a JSON representation of the entity
     };
     sendJSONXMLHTTPRequest(url, obj, function(response) {
-       console.log("CALLBACK:", response);
-    //    world[entity] = response;
-    //    drawNextFrame();
+       drawNextFrame();
     });
 
 }
@@ -302,10 +300,10 @@ function update() {
     var obj = {
         'method': 'GET'
     }
-    sendJSONXMLHTTPRequest(url, obj, function() {
-        drawNextFrame();
+    sendJSONXMLHTTPRequest(url, obj, function(response) {
+        world = response;
     });
-
+    drawNextFrame();
     drawFrame();
 }
 

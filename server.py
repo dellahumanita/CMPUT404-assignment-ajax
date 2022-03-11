@@ -22,7 +22,7 @@
 
 
 import flask
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, jsonify
 import json
 import random
 app = Flask(__name__)
@@ -82,27 +82,31 @@ def update(entity):
     '''update the entities via this interface'''
     data = flask_post_json()
 
-    for key in data:
-        myWorld.update(entity, key, data[key])
+    if request.method == 'POST':
+        myWorld.set(entity, data)
 
-    return json.dumps(myWorld.get(entity))
+    elif request.method == 'PUT':
+        for key in data:
+            myWorld.update(entity, key, data[key])
+
+    return jsonify(myWorld.get(entity))
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return json.dumps(myWorld.world())
+    return jsonify(myWorld.world())
 
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return json.dumps(myWorld.get(entity))
+    return myWorld.get(entity)
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
     myWorld.clear()
-    return json.dumps(myWorld.world())
+    return jsonify(myWorld.world())
 
 if __name__ == "__main__":
     app.run()
